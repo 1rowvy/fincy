@@ -124,12 +124,15 @@ The app checks `https://github.com/1rowvy/fincy/releases/latest/download/latest.
 on startup (and from Settings → «Проверить обновления»). When a newer signed
 version is found it offers a one-click download-install-relaunch.
 
-For the workflow to sign updates, two repository secrets are required:
+For the workflow to sign updates, one repository secret is required:
 
 | Secret | Value |
 | --- | --- |
-| `TAURI_SIGNING_PRIVATE_KEY` | contents of the private key from `tauri signer generate` |
-| `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` | the key's password (empty string if none) |
+| `TAURI_SIGNING_PRIVATE_KEY` | full contents of the private key from `tauri signer generate` |
+
+The key here was generated without a password, so the workflow passes an empty
+`TAURI_SIGNING_PRIVATE_KEY_PASSWORD` inline. If you regenerate the key with a
+password, add it as a second secret and reference it from the workflow instead.
 
 The matching public key lives in `src-tauri/tauri.conf.json` under `plugins.updater.pubkey`.
 Because the endpoint resolves to the latest **published, non-prerelease** release,
