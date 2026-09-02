@@ -19,15 +19,15 @@ export function Select({
 }) {
   return (
     <RadixSelect.Root value={value} onValueChange={onValueChange}>
-      <RadixSelect.Trigger className="flex h-10 w-full items-center justify-between rounded-lg border border-border-hairline bg-surface-page px-3 text-sm text-ink-primary outline-none focus:border-accent focus:ring-1 focus:ring-accent">
+      <RadixSelect.Trigger className="flex h-9 w-full items-center justify-between rounded-control border border-border-control bg-surface-card px-3 text-sm text-ink-primary outline-none transition-[border-color,box-shadow] focus:border-accent-strong focus:ring-2 focus:ring-accent/35">
         <RadixSelect.Value placeholder={placeholder} />
         <RadixSelect.Icon>
           <ChevronDown size={16} className="text-ink-muted" />
         </RadixSelect.Icon>
       </RadixSelect.Trigger>
       <RadixSelect.Portal>
-        <RadixSelect.Content className="z-50 overflow-hidden rounded-xl border border-border-hairline bg-surface-overlay shadow-xl">
-          <RadixSelect.Viewport className="p-1">
+        <RadixSelect.Content className="z-50 overflow-hidden rounded-2xl border border-border-hairline bg-surface-overlay shadow-flyout">
+          <RadixSelect.Viewport className="p-1.5">
             {options.map((opt) => (
               <RadixSelect.Item
                 key={opt.value}
@@ -36,7 +36,7 @@ export function Select({
               >
                 <RadixSelect.ItemText>{opt.label}</RadixSelect.ItemText>
                 <RadixSelect.ItemIndicator>
-                  <Check size={14} className="text-accent" />
+                  <Check size={14} className="text-accent-strong" />
                 </RadixSelect.ItemIndicator>
               </RadixSelect.Item>
             ))}

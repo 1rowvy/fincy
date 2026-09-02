@@ -7,7 +7,7 @@ CREATE TABLE settings (
 
 INSERT INTO settings (key, value) VALUES
   ('currency', 'RUB'),
-  ('theme', 'dark'),
+  ('theme', 'light'),
   ('recurring_reminder_lead_days', '3'),
   ('onboarded', '0');
 

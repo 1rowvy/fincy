@@ -140,7 +140,7 @@ function CategoriesTab() {
               <button
                 type="button"
                 onClick={() => setEditing(c)}
-                className="text-xs font-medium text-accent hover:underline"
+                className="text-xs font-medium text-accent-strong hover:underline"
               >
                 Изменить
               </button>

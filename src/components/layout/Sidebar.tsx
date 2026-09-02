@@ -19,53 +19,66 @@ const NAV_ITEMS = [
   { to: '/goals', label: 'Цели', icon: Target, end: false },
   { to: '/recurring', label: 'Регулярные платежи', icon: Repeat, end: false },
   { to: '/analytics', label: 'Аналитика', icon: BarChart3, end: false },
+  { to: '/settings', label: 'Настройки', icon: Settings, end: false },
 ];
 
+const itemClass = ({ isActive }: { isActive: boolean }) =>
+  cn(
+    'flex h-9 items-center gap-3 rounded-control px-3 text-sm transition-colors',
+    isActive
+      ? 'bg-surface-card-hover font-semibold text-ink-primary shadow-[inset_3px_0_0_var(--accent)]'
+      : 'font-medium text-ink-secondary hover:bg-surface-card-hover/70 hover:text-ink-primary',
+  );
+
+function NavRow({
+  to,
+  label,
+  icon: Icon,
+  end,
+}: {
+  to: string;
+  label: string;
+  icon: typeof LayoutDashboard;
+  end: boolean;
+}) {
+  return (
+    <NavLink to={to} end={end} className={itemClass}>
+      <Icon size={17} strokeWidth={1.75} />
+      {label}
+    </NavLink>
+  );
+}
+
 export function Sidebar() {
+  const main = NAV_ITEMS.slice(0, 7);
+  const settings = NAV_ITEMS[7];
+
   return (
     <aside className="flex h-full w-60 shrink-0 flex-col border-r border-border-hairline bg-surface-sidebar px-3 py-5">
-      <div className="mb-6 flex items-center gap-2 px-2">
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-accent-ink font-bold">
+      <div className="mb-7 flex items-center gap-2 px-3">
+        <span className="flex h-7 w-7 items-center justify-center rounded-[9px] bg-accent text-[13px] font-bold text-accent-ink">
           F
         </span>
-        <span className="text-base font-semibold text-ink-primary">Fincy</span>
+        <span className="text-[15px] font-bold tracking-tight text-ink-primary">Fincy</span>
       </div>
 
-      <nav className="flex flex-1 flex-col gap-1">
-        {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={end}
-            className={({ isActive }) =>
-              cn(
-                'flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                isActive
-                  ? 'bg-accent-soft text-accent'
-                  : 'text-ink-secondary hover:bg-surface-card-hover hover:text-ink-primary',
-              )
-            }
-          >
-            <Icon size={17} />
-            {label}
-          </NavLink>
-        ))}
-      </nav>
+      <nav className="flex flex-1 flex-col">
+        <div className="flex flex-col gap-1">
+          {main.map((item) => (
+            <NavRow key={item.to} {...item} />
+          ))}
+        </div>
 
-      <NavLink
-        to="/settings"
-        className={({ isActive }) =>
-          cn(
-            'flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-            isActive
-              ? 'bg-accent-soft text-accent'
-              : 'text-ink-secondary hover:bg-surface-card-hover hover:text-ink-primary',
-          )
-        }
-      >
-        <Settings size={17} />
-        Настройки
-      </NavLink>
+        <div className="my-4 border-t border-border-hairline" />
+
+        <NavRow {...settings} />
+
+        <div className="flex-1" />
+
+        <p className="px-3 text-xs leading-relaxed text-ink-muted">
+          Данные хранятся только на этом компьютере.
+        </p>
+      </nav>
     </aside>
   );
 }

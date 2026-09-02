@@ -57,7 +57,7 @@ export function AccountCard({
           <button
             type="button"
             onClick={() => setAdjustOpen(true)}
-            className="text-xs font-medium text-accent hover:underline"
+            className="text-xs font-medium text-accent-strong hover:underline"
           >
             Изменить баланс
           </button>

@@ -10,10 +10,10 @@ export function Tooltip({ content, children }: { content: ReactNode; children: R
       <RadixTooltip.Portal>
         <RadixTooltip.Content
           sideOffset={6}
-          className="z-50 rounded-lg bg-ink-primary px-2.5 py-1.5 text-xs text-surface-page shadow-lg"
+          className="z-50 rounded-md border border-border-hairline bg-surface-acrylic px-2.5 py-1.5 text-xs text-ink-primary shadow-flyout backdrop-blur-xl"
         >
           {content}
-          <RadixTooltip.Arrow className="fill-ink-primary" />
+          <RadixTooltip.Arrow className="fill-surface-overlay" />
         </RadixTooltip.Content>
       </RadixTooltip.Portal>
     </RadixTooltip.Root>

@@ -23,7 +23,7 @@ export function GoalCard({
   return (
     <Card className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-soft text-accent">
+        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-soft text-accent-strong">
           <Target size={17} />
         </span>
         <div className="flex gap-1">
@@ -39,7 +39,11 @@ export function GoalCard({
         <div className="font-medium text-ink-primary">{goal.name}</div>
         <div className="text-xs text-ink-muted">{goal.account_name}</div>
       </div>
-      <ProgressBar value={goal.current_amount} max={goal.target_amount} colorClassName={reached ? 'bg-status-good' : 'bg-accent'} />
+      <ProgressBar
+        value={goal.current_amount}
+        max={goal.target_amount}
+        colorClassName={reached ? 'bg-status-good' : 'bg-accent'}
+      />
       <div className="flex items-center justify-between text-sm">
         <span className="text-ink-secondary tabular-nums">
           {formatMoney(goal.current_amount, currency)} из {formatMoney(goal.target_amount, currency)}

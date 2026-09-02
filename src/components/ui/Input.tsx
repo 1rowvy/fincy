@@ -9,7 +9,7 @@ import {
 import { cn } from '../../lib/cn';
 
 const fieldClass =
-  'h-10 w-full rounded-lg border border-border-hairline bg-surface-page px-3 text-sm text-ink-primary outline-none placeholder:text-ink-muted focus:border-accent focus:ring-1 focus:ring-accent';
+  'h-9 w-full rounded-control border border-border-control bg-surface-card px-3 text-sm text-ink-primary outline-none transition-[border-color,box-shadow] placeholder:text-ink-muted focus:border-accent-strong focus:ring-2 focus:ring-accent/35';
 
 export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(
   ({ className, ...props }, ref) => <input ref={ref} className={cn(fieldClass, className)} {...props} />,

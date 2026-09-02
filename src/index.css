@@ -1,24 +1,40 @@
 @import "tailwindcss";
+@import "@fontsource/onest/400.css";
+@import "@fontsource/onest/500.css";
+@import "@fontsource/onest/600.css";
+@import "@fontsource/onest/700.css";
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: system-ui, -apple-system, "Segoe UI", sans-serif;
-  --radius-card: 1rem;
+  /* Onest — geometric humanist grotesk, matches the reference's Inter-like face
+     and carries full Cyrillic. */
+  --font-sans: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Onest", system-ui, sans-serif;
+
+  /* Soft, generously rounded cards on a warm-gray canvas — the reference look. */
+  --radius-card: 20px;
+  --radius-control: 10px;
 
   --color-surface-page: var(--surface-page);
   --color-surface-card: var(--surface-card);
   --color-surface-card-hover: var(--surface-card-hover);
   --color-surface-sidebar: var(--surface-sidebar);
   --color-surface-overlay: var(--surface-overlay);
+  --color-surface-acrylic: var(--surface-acrylic);
+  --color-surface-ink: var(--surface-ink);
   --color-border-hairline: var(--border-hairline);
+  --color-border-control: var(--border-control);
 
   --color-ink-primary: var(--ink-primary);
   --color-ink-secondary: var(--ink-secondary);
   --color-ink-muted: var(--ink-muted);
+  --color-ink-inverted: var(--ink-inverted);
+  --color-ink-on-dark: var(--ink-on-dark);
 
   --color-accent: var(--accent);
   --color-accent-ink: var(--accent-ink);
   --color-accent-soft: var(--accent-soft);
+  --color-accent-strong: var(--accent-strong);
 
   --color-series-1: var(--series-1);
   --color-series-2: var(--series-2);
@@ -34,80 +50,105 @@
   --color-status-warning: var(--status-warning);
   --color-status-serious: var(--status-serious);
   --color-status-critical: var(--status-critical);
+
+  /* Diffuse, edgeless shadows — cards float on the gray gutter, no hard border. */
+  --shadow-card: 0 1px 2px rgba(24, 24, 22, 0.04), 0 10px 28px -14px rgba(24, 24, 22, 0.12);
+  --shadow-flyout: 0 16px 40px -12px rgba(24, 24, 22, 0.22), 0 0 1px rgba(24, 24, 22, 0.12);
+  --shadow-dialog: 0 40px 80px -24px rgba(24, 24, 22, 0.35), 0 0 1px rgba(24, 24, 22, 0.16);
+
+  --ease-smooth: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+/* ---- Light — the reference palette ---- */
 :root {
   color-scheme: light;
 
-  --surface-page: #f9f9f7;
-  --surface-card: #fcfcfb;
-  --surface-card-hover: #f2f2ef;
-  --surface-sidebar: #fcfcfb;
+  --surface-page: #efeeec;
+  --surface-card: #ffffff;
+  --surface-card-hover: #f4f4f2;
+  --surface-sidebar: #ffffff;
   --surface-overlay: #ffffff;
-  --border-hairline: rgba(11, 11, 11, 0.1);
+  --surface-acrylic: rgba(255, 255, 255, 0.9);
+  /* Near-black surface for the few dark elements (upsell, dark chips). */
+  --surface-ink: #1c1c1a;
+  --border-hairline: rgba(20, 20, 18, 0.07);
+  --border-control: rgba(20, 20, 18, 0.14);
 
-  --ink-primary: #0b0b0b;
-  --ink-secondary: #52514e;
-  --ink-muted: #898781;
+  --ink-primary: #1a1a18;
+  --ink-secondary: #6e6e69;
+  --ink-muted: #a6a5a0;
+  --ink-inverted: #ffffff;
+  --ink-on-dark: #f2f1ed;
 
-  --accent: #008300;
-  --accent-ink: #ffffff;
-  --accent-soft: #e3f3e3;
+  /* Chartreuse. `accent` fills; dark `accent-ink` sits on top; `accent-strong`
+     is the readable green for text/icons/lines on white. */
+  --accent: #c7e64a;
+  --accent-ink: #1c2b06;
+  --accent-soft: #eef7d6;
+  --accent-strong: #5c8a1f;
 
-  --series-1: #2a78d6;
-  --series-2: #eb6834;
-  --series-3: #1baf7a;
-  --series-4: #eda100;
-  --series-5: #e87ba4;
-  --series-6: #008300;
-  --series-7: #4a3aa7;
-  --series-8: #e34948;
+  /* Monochrome-green categorical ramp + amber + orange */
+  --series-1: #2f5d1e;
+  --series-2: #4f8a2c;
+  --series-3: #79b447;
+  --series-4: #a7d15e;
+  --series-5: #d0e79c;
+  --series-6: #e7b34a;
+  --series-7: #7c8a5a;
+  --series-8: #d98544;
 
-  --status-good: #0ca30c;
-  --status-good-text: #006300;
-  --status-warning: #fab219;
-  --status-serious: #ec835a;
-  --status-critical: #d03b3b;
+  --status-good: #4f8a2c;
+  --status-good-text: #3f7020;
+  --status-warning: #e7b34a;
+  --status-serious: #d98544;
+  --status-critical: #cf5a3c;
 
-  --grid-hairline: #e1e0d9;
-  --axis-line: #c3c2b7;
+  --grid-hairline: rgba(20, 20, 18, 0.07);
+  --axis-line: rgba(20, 20, 18, 0.14);
 }
 
+/* ---- Dark — same lime, warm charcoal ground ---- */
 .dark {
   color-scheme: dark;
 
-  --surface-page: #0d0d0d;
-  --surface-card: #1a1a19;
-  --surface-card-hover: #212120;
-  --surface-sidebar: #141413;
-  --surface-overlay: #1f1f1e;
-  --border-hairline: rgba(255, 255, 255, 0.1);
+  --surface-page: #1a1a18;
+  --surface-card: #242422;
+  --surface-card-hover: #2c2c29;
+  --surface-sidebar: #1e1e1c;
+  --surface-overlay: #242422;
+  --surface-acrylic: rgba(36, 36, 34, 0.82);
+  --surface-ink: #121210;
+  --border-hairline: rgba(255, 255, 255, 0.07);
+  --border-control: rgba(255, 255, 255, 0.12);
 
-  --ink-primary: #ffffff;
-  --ink-secondary: #c3c2b7;
-  --ink-muted: #898781;
+  --ink-primary: #f2f1ed;
+  --ink-secondary: #b0aea6;
+  --ink-muted: #86847d;
+  --ink-inverted: #1a1a18;
+  --ink-on-dark: #f2f1ed;
 
-  --accent: #1fb31f;
-  --accent-ink: #06210a;
-  --accent-soft: #113311;
+  --accent: #c7e64a;
+  --accent-ink: #1c2b06;
+  --accent-soft: #2f3a17;
+  --accent-strong: #a7d15e;
 
-  --series-1: #3987e5;
-  --series-2: #d95926;
-  --series-3: #199e70;
-  --series-4: #c98500;
-  --series-5: #d55181;
-  --series-6: #1fb31f;
-  --series-7: #9085e9;
-  --series-8: #e66767;
+  --series-1: #3f7a26;
+  --series-2: #5fa036;
+  --series-3: #86c451;
+  --series-4: #b4dc6e;
+  --series-5: #d8eca8;
+  --series-6: #ecc161;
+  --series-7: #97a473;
+  --series-8: #e39a5b;
 
-  --status-good: #0ca30c;
-  --status-good-text: #0ca30c;
-  --status-warning: #fab219;
-  --status-serious: #ec835a;
-  --status-critical: #e66767;
+  --status-good: #6fb03f;
+  --status-good-text: #86c451;
+  --status-warning: #ecc161;
+  --status-serious: #e39a5b;
+  --status-critical: #e0715a;
 
-  --grid-hairline: #2c2c2a;
-  --axis-line: #383835;
+  --grid-hairline: rgba(255, 255, 255, 0.07);
+  --axis-line: rgba(255, 255, 255, 0.16);
 }
 
 * {
@@ -118,20 +159,46 @@ body {
   background: var(--surface-page);
   color: var(--ink-primary);
   font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums slashed-zero;
 }
 
 ::selection {
-  background: var(--accent-soft);
+  background: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 1px;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--border-hairline);
+  background: color-mix(in srgb, var(--ink-muted) 40%, transparent);
   border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--ink-muted) 65%, transparent);
+  background-clip: content-box;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

@@ -13,7 +13,7 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const { data: settings } = useSettings();
   const setSetting = useSetSetting();
-  const [theme, setTheme] = useState<Theme>('dark');
+  const [theme, setTheme] = useState<Theme>('light');
 
   useEffect(() => {
     if (settings?.theme === 'light' || settings?.theme === 'dark') {

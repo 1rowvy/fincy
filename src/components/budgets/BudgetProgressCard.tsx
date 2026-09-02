@@ -34,7 +34,7 @@ export function BudgetProgressCard({
           <span className="font-medium text-ink-primary">{budget.category_name}</span>
         </div>
         <div className="flex gap-1">
-          <button type="button" onClick={onEdit} className="text-xs font-medium text-accent hover:underline">
+          <button type="button" onClick={onEdit} className="text-xs font-medium text-accent-strong hover:underline">
             Изменить
           </button>
           <Button variant="ghost" size="icon" onClick={onDelete} aria-label="Удалить">

@@ -1,16 +1,28 @@
-import { Area, AreaChart, ResponsiveContainer } from 'recharts';
+import { Area, AreaChart, Bar, BarChart, ResponsiveContainer } from 'recharts';
 
 export function Sparkline({
   data,
   dataKey = 'value',
-  color = 'var(--accent)',
+  color = 'var(--accent-strong)',
   height = 40,
+  variant = 'bars',
 }: {
   data: Record<string, number>[];
   dataKey?: string;
   color?: string;
   height?: number;
+  variant?: 'bars' | 'area';
 }) {
+  if (variant === 'bars') {
+    return (
+      <ResponsiveContainer width="100%" height={height}>
+        <BarChart data={data} margin={{ top: 2, right: 0, bottom: 0, left: 0 }} barGap={2}>
+          <Bar dataKey={dataKey} fill={color} radius={[2, 2, 0, 0]} isAnimationActive={false} />
+        </BarChart>
+      </ResponsiveContainer>
+    );
+  }
+
   const gradientId = `spark-${dataKey}-${color.replace(/[^a-zA-Z0-9]/g, '')}`;
   return (
     <ResponsiveContainer width="100%" height={height}>

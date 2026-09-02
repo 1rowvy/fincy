@@ -14,16 +14,25 @@ const TITLES: Record<string, string> = {
   '/settings': 'Настройки',
 };
 
+const today = new Intl.DateTimeFormat('ru-RU', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+}).format(new Date());
+
 export function TopBar() {
   const { pathname } = useLocation();
   const { theme, toggleTheme } = useTheme();
   const title = TITLES[pathname] ?? 'Fincy';
 
   return (
-    <header className="flex h-16 shrink-0 items-center justify-between border-b border-border-hairline px-6">
-      <h1 className="text-lg font-semibold text-ink-primary">{title}</h1>
-      <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Переключить тему">
-        {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+    <header className="flex h-16 shrink-0 items-center justify-between px-5">
+      <div className="flex items-baseline gap-3">
+        <h1 className="text-lg font-bold tracking-tight text-ink-primary">{title}</h1>
+        <span className="text-sm text-ink-muted">{today}</span>
+      </div>
+      <Button variant="secondary" size="icon" onClick={toggleTheme} aria-label="Переключить тему">
+        {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
       </Button>
     </header>
   );
