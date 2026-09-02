@@ -1,9 +1,9 @@
 [package]
 name = "fincy"
-version = "0.1.0"
+version = "1.0.1"
 description = "Личный трекер доходов и расходов"
 authors = ["rowvybeats"]
-edition = "2021"
+edition = "2026"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -20,6 +20,7 @@ tauri-build = { version = "2", features = [] }
 [dependencies]
 tauri = { version = "2", features = ["tray-icon"] }
 tauri-plugin-opener = "2"
+tauri-plugin-single-instance = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tauri-plugin-sql = { version = "2.4.1", features = ["sqlite"] }
