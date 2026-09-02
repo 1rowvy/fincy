@@ -1,6 +1,6 @@
 [package]
 name = "fincy"
-version = "1.1.0"
+version = "1.1.1"
 description = "Личный трекер доходов и расходов"
 authors = ["rowvybeats"]
 edition = "2021"

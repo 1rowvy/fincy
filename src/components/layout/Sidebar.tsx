@@ -8,6 +8,8 @@ import {
   Wallet,
   WalletCards,
 } from 'lucide-react';
+import { getVersion } from '@tauri-apps/api/app';
+import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { cn } from '../../lib/cn';
 import { LogoMark } from '../Logo';
@@ -53,6 +55,11 @@ function NavRow({
 export function Sidebar() {
   const main = NAV_ITEMS.slice(0, 7);
   const settings = NAV_ITEMS[7];
+  const [version, setVersion] = useState('');
+
+  useEffect(() => {
+    getVersion().then(setVersion).catch(() => {});
+  }, []);
 
   return (
     <aside className="flex h-full w-60 shrink-0 flex-col border-r border-border-hairline bg-surface-sidebar px-3 py-5">
@@ -78,6 +85,7 @@ export function Sidebar() {
 
         <p className="px-3 text-xs leading-relaxed text-ink-muted">
           Данные хранятся только на этом компьютере.
+          {version && <span className="mt-1 block text-ink-muted/70">Версия {version}</span>}
         </p>
       </nav>
     </aside>
