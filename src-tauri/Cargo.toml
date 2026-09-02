@@ -1,9 +1,9 @@
 [package]
 name = "fincy"
-version = "1.0.1"
+version = "1.0.2"
 description = "Личный трекер доходов и расходов"
 authors = ["rowvybeats"]
-edition = "2026"
+edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
