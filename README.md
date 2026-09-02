@@ -15,11 +15,8 @@
 
 </div>
 
-<!-- Скриншот приложения / App screenshot:
-     положите файл в docs/screenshot.png и раскомментируйте строку ниже
-     drop a file at docs/screenshot.png and uncomment the line below
 <div align="center"><img src="docs/screenshot.png" alt="Fincy dashboard" width="820" /></div>
--->
+
 
 ---
 
