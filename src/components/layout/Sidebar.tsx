@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { cn } from '../../lib/cn';
+import { LogoMark } from '../Logo';
 
 const NAV_ITEMS = [
   { to: '/', label: 'Обзор', icon: LayoutDashboard, end: true },
@@ -55,9 +56,9 @@ export function Sidebar() {
 
   return (
     <aside className="flex h-full w-60 shrink-0 flex-col border-r border-border-hairline bg-surface-sidebar px-3 py-5">
-      <div className="mb-7 flex items-center gap-2 px-3">
-        <span className="flex h-7 w-7 items-center justify-center rounded-[9px] bg-accent text-[13px] font-bold text-accent-ink">
-          F
+      <div className="mb-7 flex items-center gap-2.5 px-3">
+        <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-accent text-accent-ink">
+          <LogoMark className="h-[18px] w-[18px]" />
         </span>
         <span className="text-[15px] font-bold tracking-tight text-ink-primary">Fincy</span>
       </div>
