@@ -72,6 +72,50 @@ export async function getMonthSummary(month: string): Promise<MonthSummary> {
   return rows[0] ?? { income: 0, expense: 0 };
 }
 
+export interface ForecastInputs {
+  /** Дискреционные расходы за текущий месяц — без списаний по регулярным платежам. */
+  discretionarySpent: number;
+  /** Регулярные списания, которые ещё должны пройти до конца месяца. */
+  upcomingRecurringExpense: number;
+  /** Регулярные поступления, которые ещё должны прийти до конца месяца. */
+  upcomingRecurringIncome: number;
+  daysInMonth: number;
+  /** Сегодняшнее число месяца (1–31). */
+  dayOfMonth: number;
+}
+
+export async function getForecastInputs(): Promise<ForecastInputs> {
+  const db = await getDb();
+  const now = new Date();
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+
+  const spent = await db.select<{ total: number }[]>(
+    `SELECT COALESCE(SUM(amount), 0) AS total
+     FROM transactions
+     WHERE type = 'expense'
+       AND recurring_payment_id IS NULL
+       AND strftime('%Y-%m', occurred_at) = strftime('%Y-%m', 'now', 'localtime')`,
+  );
+
+  const recurring = await db.select<{ type: TxType; total: number }[]>(
+    `SELECT type, COALESCE(SUM(amount), 0) AS total
+     FROM recurring_payments
+     WHERE is_active = 1
+       AND next_due_date > date('now', 'localtime')
+       AND next_due_date <= date('now', 'localtime', 'start of month', '+1 month', '-1 day')
+     GROUP BY type`,
+  );
+  const byType = new Map(recurring.map((r) => [r.type, r.total]));
+
+  return {
+    discretionarySpent: spent[0]?.total ?? 0,
+    upcomingRecurringExpense: byType.get('expense') ?? 0,
+    upcomingRecurringIncome: byType.get('income') ?? 0,
+    daysInMonth,
+    dayOfMonth: now.getDate(),
+  };
+}
+
 export interface BalancePoint {
   date: string;
   balance: number;

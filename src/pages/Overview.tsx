@@ -6,7 +6,8 @@ import { TrendLineChart } from '../components/charts/TrendLineChart';
 import { Card, CardHeader, CardTitle } from '../components/ui/Card';
 import { ProgressBar } from '../components/ui/ProgressBar';
 import { useAccounts } from '../hooks/useAccounts';
-import { useCategoryBreakdown, useMonthlyTrend } from '../hooks/useAnalytics';
+import { useCategoryBreakdown, useForecastInputs, useMonthlyTrend } from '../hooks/useAnalytics';
+import type { ForecastInputs } from '../repositories/analytics';
 import { useBudgetProgress } from '../hooks/useBudgets';
 import { useGoals } from '../hooks/useGoals';
 import { useUpcomingRecurring } from '../hooks/useRecurring';
@@ -19,6 +20,15 @@ import { formatMoney } from '../lib/money';
 function pctDelta(current: number, previous: number): number | undefined {
   if (!previous) return undefined;
   return ((current - previous) / previous) * 100;
+}
+
+function projectMonthEnd(currentBalance: number, f: ForecastInputs) {
+  const safeDay = Math.max(f.dayOfMonth, 1);
+  const daysLeft = Math.max(f.daysInMonth - f.dayOfMonth, 0);
+  const projectedSpend = Math.round((f.discretionarySpent / safeDay) * daysLeft);
+  const forecast =
+    currentBalance + f.upcomingRecurringIncome - f.upcomingRecurringExpense - projectedSpend;
+  return { forecast, projectedSpend, daysLeft };
 }
 
 function plural(n: number, one: string, few: string, many: string): string {
@@ -41,6 +51,7 @@ export function OverviewPage() {
   const { data: goals = [] } = useGoals();
   const { data: upcoming = [] } = useUpcomingRecurring(7);
   const { data: recent = [] } = useTransactions();
+  const { data: forecastInputs } = useForecastInputs();
 
   const totalBalance = accounts.reduce((sum, a) => sum + a.balance, 0);
   const thisMonth = trend[trend.length - 1];
@@ -56,6 +67,8 @@ export function OverviewPage() {
   const activeGoals = goals.filter((g) => g.current_amount < g.target_amount).slice(0, 4);
 
   const savingsRate = income > 0 ? (net / income) * 100 : null;
+
+  const forecast = forecastInputs ? projectMonthEnd(totalBalance, forecastInputs) : null;
 
   return (
     <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
@@ -287,6 +300,59 @@ export function OverviewPage() {
 
       {/* Right rail */}
       <div className="flex flex-col gap-4">
+        {/* End-of-month forecast */}
+        {forecast && forecastInputs && (
+          <Card className="flex flex-col gap-4">
+            <CardHeader>
+              <CardTitle>Прогноз баланса к концу месяца</CardTitle>
+            </CardHeader>
+            <div className="flex flex-col gap-1">
+              <span className="font-display text-[26px] font-bold leading-none tabular-nums text-ink-primary">
+                {formatMoney(forecast.forecast, currency)}
+              </span>
+              <span className="text-xs text-ink-muted">
+                {forecast.forecast >= totalBalance
+                  ? `на ${formatMoney(forecast.forecast - totalBalance, currency)} больше, чем сейчас`
+                  : `на ${formatMoney(totalBalance - forecast.forecast, currency)} меньше, чем сейчас`}
+              </span>
+            </div>
+            <div className="flex flex-col gap-2 border-t border-border-hairline pt-3 text-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-ink-secondary">Сейчас на счетах</span>
+                <span className="tabular-nums text-ink-primary">
+                  {formatMoney(totalBalance, currency)}
+                </span>
+              </div>
+              {forecastInputs.upcomingRecurringIncome > 0 && (
+                <div className="flex items-center justify-between">
+                  <span className="text-ink-secondary">Регулярные поступления</span>
+                  <span className="tabular-nums text-accent-strong">
+                    +{formatMoney(forecastInputs.upcomingRecurringIncome, currency)}
+                  </span>
+                </div>
+              )}
+              {forecastInputs.upcomingRecurringExpense > 0 && (
+                <div className="flex items-center justify-between">
+                  <span className="text-ink-secondary">Регулярные списания</span>
+                  <span className="tabular-nums text-ink-primary">
+                    −{formatMoney(forecastInputs.upcomingRecurringExpense, currency)}
+                  </span>
+                </div>
+              )}
+              {forecast.daysLeft > 0 && (
+                <div className="flex items-center justify-between">
+                  <span className="text-ink-secondary">
+                    Ещё потратите · оценка на {forecast.daysLeft}&nbsp;дн.
+                  </span>
+                  <span className="tabular-nums text-ink-primary">
+                    −{formatMoney(forecast.projectedSpend, currency)}
+                  </span>
+                </div>
+              )}
+            </div>
+          </Card>
+        )}
+
         {/* Month at a glance */}
         <Card className="flex flex-col divide-y divide-border-hairline">
           <StatCard

@@ -20,3 +20,7 @@ export function useMonthSummary(month: string) {
 export function useBalanceHistory(days: number) {
   return useQuery({ queryKey: ['analytics', 'balance-history', days], queryFn: () => repo.getBalanceHistory(days) });
 }
+
+export function useForecastInputs() {
+  return useQuery({ queryKey: ['analytics', 'forecast'], queryFn: () => repo.getForecastInputs() });
+}

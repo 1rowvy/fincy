@@ -11,6 +11,7 @@ export function useUpcomingRecurring(withinDays: number) {
 
 function invalidate(qc: ReturnType<typeof useQueryClient>) {
   qc.invalidateQueries({ queryKey: ['recurring'] });
+  qc.invalidateQueries({ queryKey: ['analytics'] });
 }
 
 export function useCreateRecurring() {
