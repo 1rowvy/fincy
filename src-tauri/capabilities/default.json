@@ -15,6 +15,8 @@
     "sql:allow-select",
     "sql:allow-load",
     "notification:default",
-    "autostart:default"
+    "autostart:default",
+    "updater:default",
+    "process:default"
   ]
 }

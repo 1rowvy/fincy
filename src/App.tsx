@@ -5,6 +5,7 @@ import { AppShell } from './components/layout/AppShell';
 import { AppRoutes } from './routes';
 import { runRecurringEngine } from './lib/engine/recurringEngine';
 import { setAutostart } from './lib/autostart';
+import { checkForUpdates } from './lib/updater';
 import { getSettings, setSetting } from './repositories/settings';
 
 const RECHECK_INTERVAL_MS = 45 * 60 * 1000;
@@ -43,6 +44,8 @@ function App() {
     onboardOnce();
     tick();
 
+    const updateTimer = setTimeout(() => void checkForUpdates(), 3000);
+
     const onFocus = () => tick();
     window.addEventListener('focus', onFocus);
     const interval = setInterval(tick, RECHECK_INTERVAL_MS);
@@ -50,6 +53,7 @@ function App() {
     return () => {
       window.removeEventListener('focus', onFocus);
       clearInterval(interval);
+      clearTimeout(updateTimer);
     };
   }, [queryClient]);
 

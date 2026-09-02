@@ -15,10 +15,12 @@ import {
 } from '../hooks/useCategories';
 import { useCreateTag, useDeleteTag, useTags } from '../hooks/useTags';
 import { useSetSetting, useSettings } from '../hooks/useSettings';
+import { getVersion } from '@tauri-apps/api/app';
 import { useTheme } from '../lib/theme';
 import { ICON_KEYS, getIcon } from '../lib/icons';
 import type { Category, TxType } from '../types';
 import { isAutostartEnabled, setAutostart } from '../lib/autostart';
+import { checkForUpdates } from '../lib/updater';
 
 const CURRENCIES = [
   { value: 'RUB', label: '₽ Российский рубль' },
@@ -222,9 +224,12 @@ function GeneralTab() {
   const setSetting = useSetSetting();
   const { theme, toggleTheme } = useTheme();
   const [autostart, setAutostartState] = useState(false);
+  const [version, setVersion] = useState('');
+  const [checking, setChecking] = useState(false);
 
   useEffect(() => {
     isAutostartEnabled().then(setAutostartState);
+    getVersion().then(setVersion).catch(() => {});
   }, []);
 
   return (
@@ -284,6 +289,29 @@ function GeneralTab() {
             ))}
           </NativeSelect>
         </div>
+      </div>
+
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="text-sm font-medium text-ink-primary">
+            Версия{version ? ` ${version}` : ''}
+          </div>
+          <div className="text-xs text-ink-muted">
+            Обновления проверяются автоматически при запуске
+          </div>
+        </div>
+        <Button
+          variant="secondary"
+          size="sm"
+          disabled={checking}
+          onClick={async () => {
+            setChecking(true);
+            await checkForUpdates({ notifyNoUpdate: true });
+            setChecking(false);
+          }}
+        >
+          {checking ? 'Проверка…' : 'Проверить обновления'}
+        </Button>
       </div>
     </div>
   );
