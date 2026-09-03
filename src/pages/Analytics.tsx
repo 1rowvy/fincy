@@ -4,6 +4,7 @@ import { CategoryDeltaList } from '../components/charts/CategoryDeltaList';
 import { DeviationBarChart } from '../components/charts/DeviationBarChart';
 import { DonutChart } from '../components/charts/DonutChart';
 import { SpendingHeatmap } from '../components/charts/SpendingHeatmap';
+import { TopSpendingDays } from '../components/charts/TopSpendingDays';
 import { TrendLineChart } from '../components/charts/TrendLineChart';
 import { Button } from '../components/ui/Button';
 import { Card, CardHeader, CardTitle } from '../components/ui/Card';
@@ -71,7 +72,15 @@ export function AnalyticsPage() {
         <CardHeader>
           <CardTitle>Календарь трат</CardTitle>
         </CardHeader>
-        <SpendingHeatmap data={dailySpending} month={month} currency={currency} />
+        <div className="flex flex-col gap-6 lg:flex-row lg:gap-10">
+          <SpendingHeatmap data={dailySpending} month={month} currency={currency} />
+          {dailySpending.length > 0 && (
+            <div className="min-w-0 flex-1">
+              <h4 className="mb-3 text-[13px] font-medium text-ink-secondary">Крупнейшие траты</h4>
+              <TopSpendingDays data={dailySpending} currency={currency} />
+            </div>
+          )}
+        </div>
       </Card>
 
       <Card>
