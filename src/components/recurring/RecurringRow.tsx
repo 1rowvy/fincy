@@ -1,4 +1,4 @@
-import { PenLine, Trash2 } from 'lucide-react';
+import { Check, PenLine, Trash2 } from 'lucide-react';
 import { formatDate } from '../../lib/dates';
 import { getIcon } from '../../lib/icons';
 import { formatMoney } from '../../lib/money';
@@ -20,6 +20,8 @@ export function RecurringRow({
   onEdit,
   onDelete,
   onToggleActive,
+  onMarkPaid,
+  markingPaid = false,
 }: {
   rule: RecurringPayment;
   category?: Category;
@@ -27,6 +29,8 @@ export function RecurringRow({
   onEdit: () => void;
   onDelete: () => void;
   onToggleActive: (value: boolean) => void;
+  onMarkPaid: () => void;
+  markingPaid?: boolean;
 }) {
   const Icon = getIcon(category?.icon);
   return (
@@ -53,6 +57,17 @@ export function RecurringRow({
         {rule.type === 'income' ? '+' : '-'}
         {formatMoney(rule.amount, currency)}
       </div>
+      {!!rule.is_active && (
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={onMarkPaid}
+          disabled={markingPaid}
+          aria-label="Отметить оплаченным"
+        >
+          <Check size={14} /> Оплачено
+        </Button>
+      )}
       <Switch checked={!!rule.is_active} onCheckedChange={onToggleActive} />
       <Button variant="ghost" size="icon" onClick={onEdit} aria-label="Изменить">
         <PenLine size={15} />

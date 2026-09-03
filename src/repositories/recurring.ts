@@ -1,6 +1,9 @@
 import { getDb } from '../db/client';
-import { today } from '../lib/dates';
+import { advanceDate, today } from '../lib/dates';
 import type { FrequencyUnit, RecurringPayment, TxType } from '../types';
+import { createTransaction } from './transactions';
+
+const MAX_CATCHUP_ITERATIONS = 60;
 
 export async function listRecurring(includeInactive = true): Promise<RecurringPayment[]> {
   const db = await getDb();
@@ -90,6 +93,36 @@ export async function advanceDueDate(id: number, nextDueDate: string, lastGenera
     'UPDATE recurring_payments SET next_due_date = $1, last_generated_date = $2 WHERE id = $3',
     [nextDueDate, lastGeneratedDate, id],
   );
+}
+
+/**
+ * Отметить платёж оплаченным вручную: создаёт транзакцию текущей датой и
+ * сдвигает `next_due_date` на следующий срок (пропуская уже прошедшие).
+ */
+export async function markPaidNow(id: number): Promise<void> {
+  const db = await getDb();
+  const rows = await db.select<RecurringPayment[]>('SELECT * FROM recurring_payments WHERE id = $1', [id]);
+  const rule = rows[0];
+  if (!rule) return;
+
+  const paidDate = today();
+  await createTransaction({
+    accountId: rule.account_id,
+    categoryId: rule.category_id,
+    type: rule.type,
+    amount: rule.amount,
+    occurredAt: paidDate,
+    note: rule.name,
+    recurringPaymentId: rule.id,
+  });
+
+  let nextDue = advanceDate(rule.next_due_date, rule.frequency_unit, rule.frequency_interval);
+  let iterations = 0;
+  while (nextDue <= paidDate && iterations < MAX_CATCHUP_ITERATIONS) {
+    nextDue = advanceDate(nextDue, rule.frequency_unit, rule.frequency_interval);
+    iterations++;
+  }
+  await advanceDueDate(rule.id, nextDue, paidDate);
 }
 
 export async function markReminded(id: number, date: string): Promise<void> {

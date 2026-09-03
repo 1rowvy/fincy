@@ -1,5 +1,6 @@
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { RecurringForm, type RecurringFormValues } from '../components/recurring/RecurringForm';
 import { RecurringRow } from '../components/recurring/RecurringRow';
 import { Button } from '../components/ui/Button';
@@ -8,12 +9,13 @@ import { useCategories } from '../hooks/useCategories';
 import {
   useCreateRecurring,
   useDeleteRecurring,
+  useMarkRecurringPaid,
   useRecurring,
   useSetRecurringActive,
   useUpdateRecurring,
 } from '../hooks/useRecurring';
 import { useSettings } from '../hooks/useSettings';
-import { unitsToCents } from '../lib/money';
+import { formatMoney, unitsToCents } from '../lib/money';
 import type { RecurringPayment } from '../types';
 
 function toInput(v: RecurringFormValues) {
@@ -40,6 +42,7 @@ export function RecurringPage() {
   const update = useUpdateRecurring();
   const remove = useDeleteRecurring();
   const setActive = useSetRecurringActive();
+  const markPaid = useMarkRecurringPaid();
 
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<RecurringPayment | null>(null);
@@ -74,6 +77,14 @@ export function RecurringPage() {
             onEdit={() => setEditing(rule)}
             onDelete={() => remove.mutate(rule.id)}
             onToggleActive={(v) => setActive.mutate({ id: rule.id, isActive: v })}
+            markingPaid={markPaid.isPending && markPaid.variables === rule.id}
+            onMarkPaid={() =>
+              markPaid.mutate(rule.id, {
+                onSuccess: () =>
+                  toast.success(`${rule.name} — оплачено, ${formatMoney(rule.amount, currency)}`),
+                onError: () => toast.error('Не удалось отметить платёж оплаченным'),
+              })
+            }
           />
         ))}
       </div>

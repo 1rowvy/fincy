@@ -75,10 +75,10 @@ export function SpendingHeatmap({
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="grid grid-cols-7 gap-1.5">
+    <div className="flex max-w-[19rem] flex-col gap-2.5">
+      <div className="grid grid-cols-7 gap-1">
         {WEEKDAYS.map((w) => (
-          <div key={w} className="pb-0.5 text-center text-[11px] font-medium text-ink-muted">
+          <div key={w} className="pb-0.5 text-center text-[10px] font-medium text-ink-muted">
             {w}
           </div>
         ))}
@@ -108,7 +108,7 @@ export function SpendingHeatmap({
             >
               <button
                 type="button"
-                className={`relative flex aspect-square items-start justify-start rounded-md border p-1 text-[10px] tabular-nums transition-colors ${
+                className={`relative flex aspect-square items-start justify-start rounded border p-0.5 text-[9px] leading-none tabular-nums transition-colors ${
                   isToday ? 'border-accent-strong' : 'border-border-hairline'
                 } ${opacity > 0 ? 'text-ink-primary' : 'text-ink-muted'}`}
                 style={{
@@ -125,21 +125,21 @@ export function SpendingHeatmap({
         })}
       </div>
 
-      <div className="flex items-center justify-between text-[11px] text-ink-muted">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[10px] text-ink-muted">
         <span>
           {formatMoney(monthTotal, currency)} · расходы в {pluralDays(activeDays)}
         </span>
-        <span className="flex items-center gap-1.5">
+        <span className="flex items-center gap-1">
           меньше
-          <span className="flex gap-1">
+          <span className="flex gap-0.5">
             <span
-              className="h-3 w-3 rounded-sm border border-border-hairline"
+              className="h-2.5 w-2.5 rounded-sm border border-border-hairline"
               style={{ backgroundColor: 'var(--surface-card-hover)' }}
             />
             {LEVELS.map((lvl) => (
               <span
                 key={lvl}
-                className="h-3 w-3 rounded-sm"
+                className="h-2.5 w-2.5 rounded-sm"
                 style={{
                   backgroundColor: `color-mix(in srgb, var(--series-8) ${Math.round(lvl * 100)}%, transparent)`,
                 }}

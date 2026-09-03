@@ -14,6 +14,14 @@ function invalidate(qc: ReturnType<typeof useQueryClient>) {
   qc.invalidateQueries({ queryKey: ['analytics'] });
 }
 
+function invalidateWithTransaction(qc: ReturnType<typeof useQueryClient>) {
+  invalidate(qc);
+  qc.invalidateQueries({ queryKey: ['transactions'] });
+  qc.invalidateQueries({ queryKey: ['accounts'] });
+  qc.invalidateQueries({ queryKey: ['budgets'] });
+  qc.invalidateQueries({ queryKey: ['goals'] });
+}
+
 export function useCreateRecurring() {
   const qc = useQueryClient();
   return useMutation({ mutationFn: repo.createRecurring, onSuccess: () => invalidate(qc) });
@@ -38,4 +46,12 @@ export function useSetRecurringActive() {
 export function useDeleteRecurring() {
   const qc = useQueryClient();
   return useMutation({ mutationFn: repo.deleteRecurring, onSuccess: () => invalidate(qc) });
+}
+
+export function useMarkRecurringPaid() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => repo.markPaidNow(id),
+    onSuccess: () => invalidateWithTransaction(qc),
+  });
 }
