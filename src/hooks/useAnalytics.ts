@@ -13,6 +13,20 @@ export function useCategoryBreakdown(month: string, type: TxType) {
   });
 }
 
+export function useCategoryDeltas(month: string) {
+  return useQuery({
+    queryKey: ['analytics', 'category-deltas', month],
+    queryFn: () => repo.getCategoryDeltas(month),
+  });
+}
+
+export function useDailySpending(month: string) {
+  return useQuery({
+    queryKey: ['analytics', 'daily-spending', month],
+    queryFn: () => repo.getDailySpending(month),
+  });
+}
+
 export function useMonthSummary(month: string) {
   return useQuery({ queryKey: ['analytics', 'summary', month], queryFn: () => repo.getMonthSummary(month) });
 }

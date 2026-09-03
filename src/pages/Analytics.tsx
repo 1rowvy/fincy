@@ -1,15 +1,38 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
+import { CategoryDeltaList } from '../components/charts/CategoryDeltaList';
 import { DeviationBarChart } from '../components/charts/DeviationBarChart';
 import { DonutChart } from '../components/charts/DonutChart';
+import { SpendingHeatmap } from '../components/charts/SpendingHeatmap';
 import { TrendLineChart } from '../components/charts/TrendLineChart';
 import { Button } from '../components/ui/Button';
 import { Card, CardHeader, CardTitle } from '../components/ui/Card';
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/Tabs';
-import { useCategoryBreakdown, useMonthlyTrend } from '../hooks/useAnalytics';
+import {
+  useCategoryBreakdown,
+  useCategoryDeltas,
+  useDailySpending,
+  useMonthlyTrend,
+} from '../hooks/useAnalytics';
 import { useSettings } from '../hooks/useSettings';
 import { currentMonth, formatMonthLabel, monthsBack, shiftMonth } from '../lib/dates';
 import type { TxType } from '../types';
+
+function MonthNav({ month, onChange }: { month: string; onChange: (next: string) => void }) {
+  return (
+    <div className="flex items-center gap-1">
+      <Button variant="ghost" size="icon" onClick={() => onChange(shiftMonth(month, -1))} aria-label="Предыдущий месяц">
+        <ChevronLeft size={16} />
+      </Button>
+      <span className="min-w-32 text-center text-sm font-medium capitalize text-ink-primary">
+        {formatMonthLabel(month)}
+      </span>
+      <Button variant="ghost" size="icon" onClick={() => onChange(shiftMonth(month, 1))} aria-label="Следующий месяц">
+        <ChevronRight size={16} />
+      </Button>
+    </div>
+  );
+}
 
 export function AnalyticsPage() {
   const [month, setMonth] = useState(currentMonth());
@@ -20,6 +43,8 @@ export function AnalyticsPage() {
   const months = monthsBack(6);
   const { data: trend = [] } = useMonthlyTrend(months);
   const { data: breakdown = [] } = useCategoryBreakdown(month, breakdownType);
+  const { data: dailySpending = [] } = useDailySpending(month);
+  const { data: categoryDeltas = [] } = useCategoryDeltas(month);
 
   return (
     <div className="flex flex-col gap-5">
@@ -37,33 +62,39 @@ export function AnalyticsPage() {
         <DeviationBarChart data={trend} currency={currency} />
       </Card>
 
+      <div className="flex items-center justify-between pt-1">
+        <h2 className="text-sm font-semibold text-ink-primary">Разбор месяца</h2>
+        <MonthNav month={month} onChange={setMonth} />
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Календарь трат</CardTitle>
+        </CardHeader>
+        <SpendingHeatmap data={dailySpending} month={month} currency={currency} />
+      </Card>
+
       <Card>
         <div className="mb-4 flex items-center justify-between">
           <CardTitle>Разбивка по категориям</CardTitle>
-          <div className="flex items-center gap-3">
-            <Tabs value={breakdownType} onValueChange={(v) => setBreakdownType(v as TxType)}>
-              <TabsList>
-                <TabsTrigger value="expense">Расходы</TabsTrigger>
-                <TabsTrigger value="income">Доходы</TabsTrigger>
-              </TabsList>
-            </Tabs>
-            <div className="flex items-center gap-1">
-              <Button variant="ghost" size="icon" onClick={() => setMonth((m) => shiftMonth(m, -1))} aria-label="Предыдущий месяц">
-                <ChevronLeft size={16} />
-              </Button>
-              <span className="min-w-32 text-center text-sm font-medium capitalize text-ink-primary">
-                {formatMonthLabel(month)}
-              </span>
-              <Button variant="ghost" size="icon" onClick={() => setMonth((m) => shiftMonth(m, 1))} aria-label="Следующий месяц">
-                <ChevronRight size={16} />
-              </Button>
-            </div>
-          </div>
+          <Tabs value={breakdownType} onValueChange={(v) => setBreakdownType(v as TxType)}>
+            <TabsList>
+              <TabsTrigger value="expense">Расходы</TabsTrigger>
+              <TabsTrigger value="income">Доходы</TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
         <DonutChart
           data={breakdown.map((b) => ({ name: b.name, color: b.color, icon: b.icon, total: b.total }))}
           currency={currency}
         />
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Сравнение с прошлым месяцем по категориям</CardTitle>
+        </CardHeader>
+        <CategoryDeltaList data={categoryDeltas} currency={currency} />
       </Card>
     </div>
   );

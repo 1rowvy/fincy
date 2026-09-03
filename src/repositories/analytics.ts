@@ -1,5 +1,5 @@
 import { getDb } from '../db/client';
-import { toISODate } from '../lib/dates';
+import { shiftMonth, toISODate } from '../lib/dates';
 import type { TxType } from '../types';
 
 export interface MonthTrendPoint {
@@ -51,6 +51,58 @@ export async function getCategoryBreakdown(month: string, type: TxType): Promise
      GROUP BY t.category_id
      ORDER BY total DESC`,
     [type, month],
+  );
+}
+
+export interface DailySpendingItem {
+  /** ISO-дата дня (yyyy-MM-dd). */
+  day: string;
+  total: number;
+  count: number;
+}
+
+/** Сумма расходов по каждому дню указанного месяца (`yyyy-MM`). */
+export async function getDailySpending(month: string): Promise<DailySpendingItem[]> {
+  const db = await getDb();
+  return db.select<DailySpendingItem[]>(
+    `SELECT
+       date(t.occurred_at) AS day,
+       SUM(t.amount) AS total,
+       COUNT(*) AS count
+     FROM transactions t
+     WHERE t.type = 'expense' AND strftime('%Y-%m', t.occurred_at) = $1
+     GROUP BY day
+     ORDER BY day`,
+    [month],
+  );
+}
+
+export interface CategoryDeltaItem {
+  category_id: number | null;
+  name: string;
+  color: string;
+  icon: string;
+  current_total: number;
+  previous_total: number;
+}
+
+/** Расходы по категориям за `month` (`yyyy-MM`) в сравнении с предыдущим месяцем. */
+export async function getCategoryDeltas(month: string): Promise<CategoryDeltaItem[]> {
+  const db = await getDb();
+  const prev = shiftMonth(month, -1);
+  return db.select<CategoryDeltaItem[]>(
+    `SELECT
+       t.category_id AS category_id,
+       COALESCE(c.name, 'Без категории') AS name,
+       COALESCE(c.color, '#64748b') AS color,
+       COALESCE(c.icon, 'circle') AS icon,
+       COALESCE(SUM(CASE WHEN strftime('%Y-%m', t.occurred_at) = $1 THEN t.amount END), 0) AS current_total,
+       COALESCE(SUM(CASE WHEN strftime('%Y-%m', t.occurred_at) = $2 THEN t.amount END), 0) AS previous_total
+     FROM transactions t
+     LEFT JOIN categories c ON c.id = t.category_id
+     WHERE t.type = 'expense' AND strftime('%Y-%m', t.occurred_at) IN ($1, $2)
+     GROUP BY t.category_id`,
+    [month, prev],
   );
 }
 
