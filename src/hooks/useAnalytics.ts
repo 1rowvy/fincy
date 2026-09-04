@@ -6,6 +6,13 @@ export function useMonthlyTrend(months: string[]) {
   return useQuery({ queryKey: ['analytics', 'trend', months], queryFn: () => repo.getMonthlyTrend(months) });
 }
 
+export function useMonthlyBalance(months: string[]) {
+  return useQuery({
+    queryKey: ['analytics', 'monthly-balance', months],
+    queryFn: () => repo.getMonthlyBalance(months),
+  });
+}
+
 export function useCategoryBreakdown(month: string, type: TxType) {
   return useQuery({
     queryKey: ['analytics', 'breakdown', month, type],

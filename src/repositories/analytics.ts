@@ -28,6 +28,40 @@ export async function getMonthlyTrend(months: string[]): Promise<MonthTrendPoint
   }));
 }
 
+export interface MonthBalancePoint {
+  month: string;
+  balance: number;
+}
+
+/**
+ * Общий баланс по всем счетам на конец каждого из переданных месяцев (`yyyy-MM`).
+ * Показывает, растёт ли капитал, стоит на месте или уменьшается.
+ */
+export async function getMonthlyBalance(months: string[]): Promise<MonthBalancePoint[]> {
+  const db = await getDb();
+  const totalInitial = await db.select<{ total: number }[]>(
+    'SELECT COALESCE(SUM(initial_balance), 0) AS total FROM accounts WHERE is_archived = 0',
+  );
+  const rows = await db.select<{ month: string; delta: number }[]>(
+    `SELECT strftime('%Y-%m', occurred_at) AS month, SUM(delta) AS delta
+     FROM account_ledger
+     GROUP BY month
+     ORDER BY month`,
+  );
+
+  // Оба списка отсортированы по возрастанию месяца — идём одним проходом,
+  // накапливая дельты до конца каждого запрошенного месяца включительно.
+  let cumulative = totalInitial[0]?.total ?? 0;
+  let idx = 0;
+  return months.map((month) => {
+    while (idx < rows.length && rows[idx].month <= month) {
+      cumulative += rows[idx].delta;
+      idx++;
+    }
+    return { month, balance: cumulative };
+  });
+}
+
 export interface CategoryBreakdownItem {
   category_id: number | null;
   name: string;

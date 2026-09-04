@@ -3,7 +3,7 @@ use tauri::{
     tray::TrayIconBuilder,
     Manager, WindowEvent,
 };
-use tauri_plugin_autostart::MacosLauncher;
+use tauri_plugin_autostart::{ManagerExt, MacosLauncher};
 use tauri_plugin_sql::{Migration, MigrationKind};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -34,7 +34,9 @@ pub fn run() {
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_autostart::init(
             MacosLauncher::LaunchAgent,
-            None,
+            // Флаг, по которому setup понимает, что запуск инициирован
+            // автозапуском ОС, и окно нужно оставить свёрнутым в трей.
+            Some(vec!["--hidden"]),
         ))
         .setup(|app| {
             #[cfg(desktop)]
@@ -81,6 +83,25 @@ pub fn run() {
                     }
                 })
                 .build(app)?;
+
+            // Обновляем запись автозапуска, чтобы в ней появился флаг --hidden
+            // (у пользователей, включивших автозапуск до этого изменения, его нет).
+            let autostart = app.autolaunch();
+            if autostart.is_enabled().unwrap_or(false) {
+                let _ = autostart.disable();
+                let _ = autostart.enable();
+            }
+
+            // Окно создаётся скрытым (visible: false в конфиге). Показываем его
+            // только при обычном ручном запуске; при автозапуске ОС (флаг --hidden)
+            // приложение остаётся в трее.
+            let started_hidden = std::env::args().any(|arg| arg == "--hidden");
+            if !started_hidden {
+                if let Some(window) = app.get_webview_window("main") {
+                    let _ = window.show();
+                    let _ = window.set_focus();
+                }
+            }
 
             Ok(())
         })

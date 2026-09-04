@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
+import { BalanceTrendChart } from '../components/charts/BalanceTrendChart';
 import { CategoryDeltaList } from '../components/charts/CategoryDeltaList';
 import { DeviationBarChart } from '../components/charts/DeviationBarChart';
 import { DonutChart } from '../components/charts/DonutChart';
@@ -13,6 +14,7 @@ import {
   useCategoryBreakdown,
   useCategoryDeltas,
   useDailySpending,
+  useMonthlyBalance,
   useMonthlyTrend,
 } from '../hooks/useAnalytics';
 import { useSettings } from '../hooks/useSettings';
@@ -43,12 +45,20 @@ export function AnalyticsPage() {
 
   const months = monthsBack(6);
   const { data: trend = [] } = useMonthlyTrend(months);
+  const { data: balanceTrend = [] } = useMonthlyBalance(months);
   const { data: breakdown = [] } = useCategoryBreakdown(month, breakdownType);
   const { data: dailySpending = [] } = useDailySpending(month);
   const { data: categoryDeltas = [] } = useCategoryDeltas(month);
 
   return (
     <div className="flex flex-col gap-5">
+      <Card>
+        <CardHeader>
+          <CardTitle>Общий баланс по месяцам</CardTitle>
+        </CardHeader>
+        <BalanceTrendChart data={balanceTrend} currency={currency} />
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle>Доход и расход за последние 6 месяцев</CardTitle>
