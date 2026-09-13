@@ -28,6 +28,24 @@ export function formatDateShort(value: string): string {
   return format(parseISO(value), 'd MMM', { locale: ru });
 }
 
+export function formatDateHeading(value: string): string {
+  return format(parseISO(value), 'd MMMM', { locale: ru });
+}
+
+export function groupByDate<T>(items: T[], getDate: (item: T) => string): Array<{ date: string; items: T[] }> {
+  const groups: Array<{ date: string; items: T[] }> = [];
+  for (const item of items) {
+    const date = getDate(item);
+    const last = groups[groups.length - 1];
+    if (last && last.date === date) {
+      last.items.push(item);
+    } else {
+      groups.push({ date, items: [item] });
+    }
+  }
+  return groups;
+}
+
 export function formatMonthLabel(monthValue: string): string {
   return format(parseISO(`${monthValue}-01`), 'LLLL yyyy', { locale: ru });
 }

@@ -1,4 +1,4 @@
-import { Plus, Tag as TagIcon, Trash2 } from 'lucide-react';
+import { ChevronDown, Plus, Tag as TagIcon, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { TransactionForm, toCreateInput, type TransactionFormValues } from '../components/transactions/TransactionForm';
 import { Button } from '../components/ui/Button';
@@ -9,7 +9,7 @@ import { useAccounts } from '../hooks/useAccounts';
 import { useCategories } from '../hooks/useCategories';
 import { useCreateTransaction, useDeleteTransaction, useTransactions, useUpdateTransaction } from '../hooks/useTransactions';
 import { useSettings } from '../hooks/useSettings';
-import { formatDate } from '../lib/dates';
+import { formatDateHeading, groupByDate } from '../lib/dates';
 import { getIcon } from '../lib/icons';
 import { formatMoney } from '../lib/money';
 import type { TransactionFilters, TransactionWithRelations } from '../types';
@@ -28,6 +28,16 @@ export function TransactionsPage() {
 
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<TransactionWithRelations | null>(null);
+  const [collapsedDates, setCollapsedDates] = useState<Set<string>>(new Set());
+
+  const toggleDate = (date: string) => {
+    setCollapsedDates((prev) => {
+      const next = new Set(prev);
+      if (next.has(date)) next.delete(date);
+      else next.add(date);
+      return next;
+    });
+  };
 
   const handleCreate = (values: TransactionFormValues) => {
     createTx.mutate(toCreateInput(values), { onSuccess: () => setCreating(false) });
@@ -109,61 +119,87 @@ export function TransactionsPage() {
         </div>
       </Card>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-4">
         {transactions.length === 0 && <p className="text-sm text-ink-muted">Транзакций не найдено.</p>}
-        {transactions.map((t) => {
-          const Icon = getIcon(t.category_icon);
+        {groupByDate(transactions, (t) => t.occurred_at).map((group) => {
+          const net = group.items.reduce(
+            (sum, t) => sum + (t.type === 'income' ? t.amount : -t.amount),
+            0,
+          );
+          const collapsed = collapsedDates.has(group.date);
           return (
-            <div
-              key={t.id}
-              className="flex items-center gap-3 rounded-xl border border-border-hairline bg-surface-card p-3.5"
-            >
-              <span
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
-                style={{
-                  backgroundColor: `${t.category_color ?? '#64748b'}22`,
-                  color: t.category_color ?? '#64748b',
-                }}
-              >
-                <Icon size={16} />
-              </span>
-              <div className="min-w-0 flex-1">
-                <div className="truncate text-sm font-medium text-ink-primary">
-                  {t.category_name ?? 'Без категории'}
-                  {t.note && <span className="ml-1.5 font-normal text-ink-muted">· {t.note}</span>}
-                </div>
-                <div className="flex items-center gap-1.5 text-xs text-ink-muted">
-                  <span>{formatDate(t.occurred_at)}</span>
-                  <span>·</span>
-                  <span>{t.account_name}</span>
-                  {t.tags.length > 0 && (
-                    <span className="flex items-center gap-1">
-                      <TagIcon size={11} />
-                      {t.tags.map((tag) => tag.name).join(', ')}
-                    </span>
-                  )}
-                </div>
-              </div>
-              <div
-                className={
-                  t.type === 'income'
-                    ? 'shrink-0 font-semibold tabular-nums text-series-1'
-                    : 'shrink-0 font-semibold tabular-nums text-ink-primary'
-                }
-              >
-                {t.type === 'income' ? '+' : '-'}
-                {formatMoney(t.amount, currency)}
-              </div>
+            <div key={group.date} className="flex flex-col gap-2">
               <button
                 type="button"
-                onClick={() => setEditing(t)}
-                className="text-xs font-medium text-accent-strong hover:underline"
+                onClick={() => toggleDate(group.date)}
+                className="sticky top-0 z-10 flex w-full items-center justify-between gap-3 bg-surface-page py-2 text-left"
               >
-                Изменить
+                <span className="flex items-center gap-1.5 text-sm font-semibold capitalize text-ink-primary">
+                  <ChevronDown
+                    size={14}
+                    className={`shrink-0 text-ink-muted transition-transform ${collapsed ? '-rotate-90' : ''}`}
+                  />
+                  {formatDateHeading(group.date)}
+                </span>
+                <span className="text-xs font-medium tabular-nums text-ink-muted">
+                  {net > 0 ? '+' : net < 0 ? '−' : ''}
+                  {formatMoney(Math.abs(net), currency)}
+                </span>
               </button>
-              <Button variant="ghost" size="icon" onClick={() => deleteTx.mutate(t.id)} aria-label="Удалить">
-                <Trash2 size={15} />
-              </Button>
+              {!collapsed && group.items.map((t) => {
+                const Icon = getIcon(t.category_icon);
+                return (
+                  <div
+                    key={t.id}
+                    className="flex items-center gap-3 rounded-xl border border-border-hairline bg-surface-card p-3.5"
+                  >
+                    <span
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+                      style={{
+                        backgroundColor: `${t.category_color ?? '#64748b'}22`,
+                        color: t.category_color ?? '#64748b',
+                      }}
+                    >
+                      <Icon size={16} />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-medium text-ink-primary">
+                        {t.category_name ?? 'Без категории'}
+                        {t.note && <span className="ml-1.5 font-normal text-ink-muted">· {t.note}</span>}
+                      </div>
+                      <div className="flex items-center gap-1.5 text-xs text-ink-muted">
+                        <span>{t.account_name}</span>
+                        {t.tags.length > 0 && (
+                          <span className="flex items-center gap-1">
+                            <TagIcon size={11} />
+                            {t.tags.map((tag) => tag.name).join(', ')}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div
+                      className={
+                        t.type === 'income'
+                          ? 'shrink-0 font-semibold tabular-nums text-series-1'
+                          : 'shrink-0 font-semibold tabular-nums text-ink-primary'
+                      }
+                    >
+                      {t.type === 'income' ? '+' : '-'}
+                      {formatMoney(t.amount, currency)}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setEditing(t)}
+                      className="text-xs font-medium text-accent-strong hover:underline"
+                    >
+                      Изменить
+                    </button>
+                    <Button variant="ghost" size="icon" onClick={() => deleteTx.mutate(t.id)} aria-label="Удалить">
+                      <Trash2 size={15} />
+                    </Button>
+                  </div>
+                );
+              })}
             </div>
           );
         })}
