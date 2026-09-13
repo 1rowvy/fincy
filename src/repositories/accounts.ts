@@ -86,3 +86,8 @@ export async function listTransfers(): Promise<Transfer[]> {
   const db = await getDb();
   return db.select<Transfer[]>('SELECT * FROM transfers ORDER BY occurred_at DESC, id DESC');
 }
+
+export async function deleteTransfer(id: number): Promise<void> {
+  const db = await getDb();
+  await db.execute('DELETE FROM transfers WHERE id = $1', [id]);
+}

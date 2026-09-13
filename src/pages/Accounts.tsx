@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { AccountCard } from '../components/accounts/AccountCard';
 import { AccountForm, toAccountInput, type AccountFormValues } from '../components/accounts/AccountForm';
 import { TransferForm } from '../components/accounts/TransferForm';
+import { TransferHistory } from '../components/accounts/TransferHistory';
 import { Button } from '../components/ui/Button';
 import { Dialog, DialogContent, DialogTrigger } from '../components/ui/Dialog';
 import {
@@ -10,6 +11,8 @@ import {
   useArchiveAccount,
   useCreateAccount,
   useCreateTransfer,
+  useDeleteTransfer,
+  useTransfers,
   useUpdateAccount,
 } from '../hooks/useAccounts';
 import { useSettings } from '../hooks/useSettings';
@@ -17,6 +20,7 @@ import type { AccountWithBalance } from '../types';
 
 export function AccountsPage() {
   const { data: accounts = [] } = useAccounts();
+  const { data: transfers = [] } = useTransfers();
   const { data: settings } = useSettings();
   const currency = settings?.currency ?? 'RUB';
 
@@ -24,6 +28,7 @@ export function AccountsPage() {
   const updateAccount = useUpdateAccount();
   const archiveAccount = useArchiveAccount();
   const createTransfer = useCreateTransfer();
+  const deleteTransfer = useDeleteTransfer();
 
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<AccountWithBalance | null>(null);
@@ -95,6 +100,13 @@ export function AccountsPage() {
           )}
         </DialogContent>
       </Dialog>
+
+      <TransferHistory
+        transfers={transfers}
+        accounts={accounts}
+        currency={currency}
+        onDelete={(id) => deleteTransfer.mutate(id)}
+      />
     </div>
   );
 }

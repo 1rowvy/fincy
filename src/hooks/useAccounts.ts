@@ -58,3 +58,11 @@ export function useCreateTransfer() {
 export function useTransfers() {
   return useQuery({ queryKey: ['transfers'], queryFn: () => repo.listTransfers() });
 }
+
+export function useDeleteTransfer() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: repo.deleteTransfer,
+    onSuccess: () => invalidateBalanceDependents(qc),
+  });
+}
